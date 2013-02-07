@@ -4,6 +4,8 @@
 import re
 import sys
 
+from execution_tree import ExecutionPoint
+
 
 class AutomatonTrace:
 
@@ -60,26 +62,24 @@ class AutomatonTrace:
             else:
                 line = dtrace_file.readline()
         dtrace_file.close()
+        #print "--------------------------"
+        #print ""
 
     def read_program_executions(self, dtrace_filename):
         dtrace_file = open(dtrace_filename, 'rt')
         line = dtrace_file.readline()
 
         stack = []
-        last_stack_length = 0
 
         while line:
             m_enter = re.search("^%s.(.*):::ENTER" % self.class_name, line)
             if m_enter:
                 method = m_enter.group(1)
-                print " + %s" % method
-                stack.append(method)
-                last_stack_length = len(stack)
+                #print " + %s" % method
                 line = dtrace_file.readline()
 
                 condition = ""
                 while len(line.strip()) > 0:
-                    #print len(line), "%%", line.strip(), "%%"
                     if line.strip() in self.methods[method]:
                         key = line.strip()
                         value = dtrace_file.readline().strip()
@@ -89,35 +89,51 @@ class AutomatonTrace:
                     line = dtrace_file.readline()
                 if condition:
                     condition = " [" + condition + "]"
-                print "@@ %s;" % (self.methods[method]["m"])
-                print "@@ "
-                print "@@ %s%s;" % (self.methods[method]["n"], condition)
+
+                stack.append(ExecutionPoint(method, condition))
+                if len(stack) > 1:
+                    stack[len(stack) - 2].add_child(stack[len(stack) - 1])
 
                 continue
             m_exit = re.search("^%s.(.*):::EXIT.*" % self.class_name, line)
             if m_exit:
                 method = m_exit.group(1)
-
-                if len(stack) == last_stack_length:
-                    print " * %s" % method
-                stack.pop()
-                #last_stack_length = len(stack)
-                print " - %s" % method
-
                 line = dtrace_file.readline()
 
                 new_values = {}
                 while len(line.strip()) > 0:
-                    #print len(line), "%%", line.strip(), "%%"
                     if line.strip() in self.methods[method]:
                         key = line.strip()
                         value = int(dtrace_file.readline().strip())
-                        print "set %s=%d" % (key, value)
+                        #print "set %s=%d" % (key, value)
                         new_values[key] = value
                     line = dtrace_file.readline()
 
+                execution_point = stack.pop()
+                execution_point.add_values(new_values)
+
                 if len(stack) == 0:
-                    print "================="
+                    s = [execution_point]
+                    states = []
+                    outputs = []
+                    while len(s) > 0:
+                        p = s.pop()
+                        states.append("%s%s" % (self.methods[p.get_name()]["n"], p.get_condition()))
+                        output = ""
+                        for c in p.get_children():
+                            if len(output) > 0:
+                                output += ", "
+                            output += self.methods[c.get_name()]["m"]
+                        for k, v in p.get_values().iteritems():
+                            if len(output) > 0:
+                                output += ", "
+                            #print k, p.get_name(), self.methods[p.get_name()][k]
+                            output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
+                        outputs.append(output)
+                        s.extend(p.get_children())
+                    print "; ".join(states)
+                    print "; ".join(outputs)
+                    print ""
                     #print "@@ "
 
                 continue
