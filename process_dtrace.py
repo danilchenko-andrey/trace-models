@@ -55,6 +55,7 @@ class AutomatonTrace:
                 #print method_variables
                 self.methods[method_name] = method_variables
                 self.methods[method_name]["n"] = chr(len(self.methods) + 64)
+                self.methods[method_name]["m"] = "z%s" % len(self.methods)
 
             else:
                 line = dtrace_file.readline()
@@ -86,7 +87,11 @@ class AutomatonTrace:
                             condition += " & "
                         condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
                     line = dtrace_file.readline()
-                print "@@ %s [%s];" % (self.methods[method]["n"], condition)
+                if condition:
+                    condition = " [" + condition + "]"
+                print "@@ %s;" % (self.methods[method]["m"])
+                print "@@ "
+                print "@@ %s%s;" % (self.methods[method]["n"], condition)
 
                 continue
             m_exit = re.search("^%s.(.*):::EXIT.*" % self.class_name, line)
@@ -113,6 +118,7 @@ class AutomatonTrace:
 
                 if len(stack) == 0:
                     print "================="
+                    #print "@@ "
 
                 continue
 
