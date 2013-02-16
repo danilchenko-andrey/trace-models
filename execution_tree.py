@@ -4,9 +4,10 @@
 
 class ExecutionPoint:
 
-    def __init__(self, name, condition):
+    def __init__(self, name, parameters, condition):
         self.name = name
         self.condition = condition
+        self.parameters = parameters
         self.nodes = []
 
     def add_child(self, node):
@@ -14,6 +15,9 @@ class ExecutionPoint:
 
     def get_condition(self):
         return self.condition
+
+    def get_parameters(self):
+        return self.parameters
 
     def get_name(self):
         return self.name

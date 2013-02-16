@@ -1,0 +1,17 @@
+C [a & e2]; A [c & e4]
+z2, A1_1, c; z4, A1_2, a
+
+C [a & e2]; C [c & e1]; A [c & e4]
+z2, A1_1, c; z1, A1_0, A1_5, c; z4, A1_2, a
+
+C [a & e2]; C [c & e1]; C [c & e1]; C [c & e1]; A [c & e4]
+z2, A1_1, c; z1, A1_0, A1_5, c; z1, A1_0, A1_5, c; z1, A1_0, A1_5, c; z4, A1_2, a
+
+C [a & e2]; F [c & e5]; A [c & e4]
+z2, A1_1, c; f; z4, A1_2, a
+
+C [a & e2]; C [c & e1]; F [c & e5]; A [c & e4]
+z2, A1_1, c; z1, A1_0, A1_5, c; f; z4, A1_2, a
+
+C [a & e2]; C [c & e1]; C [c & e1]; F [c & e5]; A [c & e4]
+z2, A1_1, c; z1, A1_0, A1_5, c; z1, A1_0, A1_5, c; f; z4, A1_2, a

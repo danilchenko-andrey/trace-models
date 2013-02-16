@@ -58,6 +58,7 @@ class AutomatonTrace:
                 self.methods[method_name] = method_variables
                 self.methods[method_name]["n"] = chr(len(self.methods) + 64)
                 self.methods[method_name]["m"] = "z%s" % len(self.methods)
+                print >> sys.stderr, "%s => %s; %s" % (method_name, self.methods[method_name]["n"], self.methods[method_name]["m"])
 
             else:
                 line = dtrace_file.readline()
@@ -70,6 +71,7 @@ class AutomatonTrace:
         line = dtrace_file.readline()
 
         stack = []
+        events = {}
 
         while line:
             m_enter = re.search("^%s.(.*):::ENTER" % self.class_name, line)
@@ -78,19 +80,28 @@ class AutomatonTrace:
                 #print " + %s" % method
                 line = dtrace_file.readline()
 
+                parameters = ""
                 condition = ""
                 while len(line.strip()) > 0:
                     if line.strip() in self.methods[method]:
                         key = line.strip()
-                        value = dtrace_file.readline().strip()
-                        if len(condition) > 0:
-                            condition += " & "
-                        condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                        if not key.startswith("this.lastNumberPressed"):
+                            value = dtrace_file.readline().strip()
+                            if not key.startswith("this."):
+                                if len(parameters) > 0:
+                                    parameters += " & "
+                                parameters += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                            else:
+                                if len(condition) > 0:
+                                    condition += " & "
+                                condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
                     line = dtrace_file.readline()
+                #if parameters:
+                #    parameters = " [" + parameters + "]"
                 if condition:
                     condition = " [" + condition + "]"
 
-                stack.append(ExecutionPoint(method, condition))
+                stack.append(ExecutionPoint(method, parameters, condition))
                 if len(stack) > 1:
                     stack[len(stack) - 2].add_child(stack[len(stack) - 1])
 
@@ -118,19 +129,29 @@ class AutomatonTrace:
                     outputs = []
                     while len(s) > 0:
                         p = s.pop()
-                        states.append("%s%s" % (self.methods[p.get_name()]["n"], p.get_condition()))
+                        event = p.get_name() + p.get_condition()
+                        if not event in events:
+                            events[event] = chr(65 + len(events))
+                            if len(events) == 91:
+                                print >> sys.stderr, "OMG!!!!"
+                        cond = p.get_parameters()
+                        if cond:
+                            cond = " [" + cond + "]"
+                        states.append("%s%s" % (events[event], cond))
                         output = ""
                         for c in p.get_children():
                             if len(output) > 0:
                                 output += ", "
-                            output += self.methods[c.get_name()]["m"]
-                        for k, v in p.get_values().iteritems():
-                            if len(output) > 0:
-                                output += ", "
+                            output += self.methods[c.get_name()]["m"] + c.get_parameters()
+                            if len(c.get_children()) > 0:
+                                s.append(c)
+                        #for k, v in p.get_values().iteritems():
+                            #if len(output) > 0:
+                            #    output += ", "
                             #print k, p.get_name(), self.methods[p.get_name()][k]
-                            output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
+                            #output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
                         outputs.append(output)
-                        s.extend(p.get_children())
+                        #s.extend(p.get_children())
                     print "; ".join(states)
                     print "; ".join(outputs)
                     print ""
