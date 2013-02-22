@@ -78,9 +78,9 @@ public class AlarmAutomata {
 		System.out.println("ah=" + ah + " am=" + am);
 	}
 	public void z6() {
-		System.out.println("Включить звонок");
+		System.out.println("Alarm on");
 	}
 	public void z7() {
-		System.out.println("Выключить звонок");
+		System.out.println("Alarm off");
 	}
 }
