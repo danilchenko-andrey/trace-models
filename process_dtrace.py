@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import string
 import sys
 
 from execution_tree import ExecutionPoint
@@ -67,6 +68,8 @@ class AutomatonTrace:
         #print ""
 
     def read_program_executions(self, dtrace_filename):
+        test_scenario_states = []
+        test_scenario_outputs = []
         dtrace_file = open(dtrace_filename, 'rt')
         line = dtrace_file.readline()
 
@@ -85,16 +88,15 @@ class AutomatonTrace:
                 while len(line.strip()) > 0:
                     if line.strip() in self.methods[method]:
                         key = line.strip()
-                        if not key.startswith("this.lastNumberPressed"):
-                            value = dtrace_file.readline().strip()
-                            if not key.startswith("this."):
-                                if len(parameters) > 0:
-                                    parameters += " & "
-                                parameters += "%s_eq_%s" % (self.methods[method][key]["n"], value)
-                            else:
-                                if len(condition) > 0:
-                                    condition += " & "
-                                condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                        value = dtrace_file.readline().strip()
+                        if not key.startswith("this."):
+                            if len(parameters) > 0:
+                                parameters += " & "
+                            parameters += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                        else:
+                            if len(condition) > 0:
+                                condition += " & "
+                            condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
                     line = dtrace_file.readline()
                 #if parameters:
                 #    parameters = " [" + parameters + "]"
@@ -129,40 +131,42 @@ class AutomatonTrace:
                     outputs = []
                     while len(s) > 0:
                         p = s.pop()
-                        event = p.get_name() + p.get_condition()
+                        event = p.get_name() + p.get_parameters()
                         if not event in events:
                             events[event] = chr(65 + len(events))
                             if len(events) == 91:
                                 print >> sys.stderr, "OMG!!!!"
-                        cond = p.get_parameters()
-                        if cond:
-                            cond = " [" + cond + "]"
-                        states.append("%s%s" % (events[event], cond))
+                        
+                        test_scenario_states.append("%s%s" % (events[event], p.get_condition()))
                         output = ""
                         for c in p.get_children():
                             if len(output) > 0:
                                 output += ", "
-                            output += self.methods[c.get_name()]["m"] + c.get_parameters()
+                            output += self.methods[c.get_name()]["m"]
                             if len(c.get_children()) > 0:
                                 s.append(c)
-                        #for k, v in p.get_values().iteritems():
-                            #if len(output) > 0:
-                            #    output += ", "
-                            #print k, p.get_name(), self.methods[p.get_name()][k]
-                            #output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
-                        outputs.append(output)
-                        #s.extend(p.get_children())
-                    print "; ".join(states)
-                    print "; ".join(outputs)
-                    print ""
+                        # for k, v in p.get_values().iteritems():
+                        #     if len(output) > 0:
+                        #         output += ", "
+                        #     # print k, p.get_name(), self.methods[p.get_name()][k]
+                        #     output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
+                        test_scenario_outputs.append(output)
+                        # s.extend(p.get_children())
+                    # test_scenario_states.append(string.join(states, "; "))
+                    #test_scenario_outputs.append(string.join(outputs , "; "))
+                    #print "; ".join(states)
+                    #print "; ".join(outputs)
+                    #print ""
                     #print "@@ "
 
                 continue
 
             line = dtrace_file.readline()
 
-        dtrace_file.close()
+        dtrace_file.close()  
 
+        print "; ".join(test_scenario_states)
+        print "; ".join(test_scenario_outputs)
 
 if __name__ == '__main__':
     trace = AutomatonTrace(sys.argv[1])

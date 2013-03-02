@@ -1,3 +1,5 @@
+package alarm;
+
 public class AlarmAutomata {
 	private int state;
 	private int h;
@@ -36,9 +38,9 @@ public class AlarmAutomata {
 					case 1: z1();break; // H
 					case 2: z2(); break; // M
 					case 3: // T
-						if ((60 * ah + am) == (60 * h + m)) {
+						if ((6 * ah + am) == (6 * h + m)) {
 							z6(); z5();
-						} else if ((60 * ah + am + 1) % (60 * 23 + 59) == (60 * h + m)) {
+						} else if ((6 * ah + am + 1) % (6 * 2 + 5) == (6 * h + m)) {
 							z7(); z5();
 						} else { // not x1 and not x2
 							z5();
@@ -52,28 +54,28 @@ public class AlarmAutomata {
 	}
 
 	public void z1() {
-		h = (h + 1) % 24;
+		h = (h + 1) % 3;
 		System.out.println("h=" + h + " m=" + m);
 		System.out.println("ah=" + ah + " am=" + am);
 	}
 	public void z2() {
-		m = (m + 1) % 60;
+		m = (m + 1) % 6;
 		System.out.println("h=" + h + " m=" + m);
 		System.out.println("ah=" + ah + " am=" + am);
 	}
 	public void z3() {
-		ah = (ah + 1) % 24;
+		ah = (ah + 1) % 3;
 		System.out.println("h=" + h + " m=" + m);
 		System.out.println("ah=" + ah + " am=" + am);
 	}
 	public void z4() {
-		am = (am + 1) % 60;
+		am = (am + 1) % 6;
 		System.out.println("h=" + h + " m=" + m);
 		System.out.println("ah=" + ah + " am=" + am);
 	}
 	public void z5() {
-		m = (m + 1) % 60;
-		if (m == 0) h = (h + 1) % 24;
+		m = (m + 1) % 6;
+		if (m == 0) h = (h + 1) % 3;
 		System.out.println("h=" + h + " m=" + m);
 		System.out.println("ah=" + ah + " am=" + am);
 	}

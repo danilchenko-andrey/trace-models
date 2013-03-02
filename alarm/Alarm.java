@@ -1,11 +1,18 @@
+package alarm;
+
+import java.io.*;
+import java.util.*;
+import alarm.AlarmAutomata;
+
 public class Alarm {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		Reader in = new FileReader("alarm-test");
 		AlarmAutomata automata = new AlarmAutomata();
-		char command = 't';
+		int r;
 		try{
-			while (true) {
-				command = (char)System.in.read();
+			while ((r = in.read()) != -1) {
+				char command = (char)r;
 				switch (command) {
 					case 'h': automata.step(1);break;
 					case 'm': automata.step(2);break;
@@ -13,6 +20,7 @@ public class Alarm {
 					case 'a': automata.step(4);break;
 					case 'q': System.exit(0);break;
 					default:
+						
 				}
 			}
 		} catch (Exception e) {
