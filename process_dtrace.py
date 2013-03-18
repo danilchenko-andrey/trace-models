@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import re
-import string
 import sys
 
-from execution_tree import ExecutionPoint
+from execution_point import ExecutionPoint
 
 
 class AutomatonTrace:
@@ -30,9 +29,7 @@ class AutomatonTrace:
                 while len(line) > 0 and not line.startswith("ppt "):
                     m = re.search("^ *variable (.*)", line)
                     if m:
-                        if variable and\
-                         variable["name"] != "this" and \
-                         variable["type"] == "int":
+                        if variable and variable["name"] != "this" and variable["type"] == "int":
                             #print "   - %s" % variable["name"]
                             method_variables[variable["name"]] = variable
                             method_variables[variable["name"]]["n"] = chr(len(method_variables) + 96)
@@ -48,9 +45,7 @@ class AutomatonTrace:
 
                     line = dtrace_file.readline()
 
-                if variable and\
-                 variable["name"] != "this" and\
-                 variable["type"] == "int":
+                if variable and variable["name"] != "this" and variable["type"] == "int":
                     #print "   - %s" % variable["name"]
                     method_variables[variable["name"]] = variable
                     method_variables[variable["name"]]["n"] = chr(len(method_variables) + 96)
@@ -127,8 +122,7 @@ class AutomatonTrace:
 
                 if len(stack) == 0:
                     s = [execution_point]
-                    states = []
-                    outputs = []
+
                     while len(s) > 0:
                         p = s.pop()
                         event = p.get_name() + p.get_parameters()
@@ -136,7 +130,7 @@ class AutomatonTrace:
                             events[event] = chr(65 + len(events))
                             if len(events) == 91:
                                 print >> sys.stderr, "OMG!!!!"
-                        
+
                         test_scenario_states.append("%s%s" % (events[event], p.get_condition()))
                         output = ""
                         for c in p.get_children():
@@ -163,7 +157,7 @@ class AutomatonTrace:
 
             line = dtrace_file.readline()
 
-        dtrace_file.close()  
+        dtrace_file.close()
 
         print "; ".join(test_scenario_states)
         print "; ".join(test_scenario_outputs)
