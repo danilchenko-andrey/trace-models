@@ -63,26 +63,30 @@ class Program:
         events = {}
 
         while line:
-            m_enter = re.search("^%s.(.*):::ENTER" % self.class_name, line)
+            m_enter = re.search("^([^() ]*)\.([^:]*):::ENTER", line)
             if m_enter:
-                method = m_enter.group(1)
-                #print " + %s" % method
+                class_name = m_enter.group(1)
+                if class_name not in self.classes:
+                    raise RuntimeError("Unknown class %s" % class_name)
+                clazz = self.classes[class_name]
+                method = m_enter.group(2)
                 line = dtrace_file.readline()
 
                 parameters = ""
                 condition = ""
-                while len(line.strip()) > 0:
-                    if line.strip() in self.methods[method]:
+                l = line.strip()
+                while len(l) > 0:
+                    if l in clazz.methods[method]:
                         key = line.strip()
                         value = dtrace_file.readline().strip()
                         if not key.startswith("this."):
                             if len(parameters) > 0:
                                 parameters += " & "
-                            parameters += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                            parameters += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
                         else:
                             if len(condition) > 0:
                                 condition += " & "
-                            condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                            condition += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
                     line = dtrace_file.readline()
                 #if parameters:
                 #    parameters = " [" + parameters + "]"
@@ -94,9 +98,13 @@ class Program:
                     stack[len(stack) - 2].add_child(stack[len(stack) - 1])
 
                 continue
-            m_exit = re.search("^%s.(.*):::EXIT.*" % self.class_name, line)
+
+            m_exit = re.search("^([^() ]*)\.([^:]*):::EXIT.*", line)
             if m_exit:
-                method = m_exit.group(1)
+                class_name = m_enter.group(1)
+                if class_name not in self.classes:
+                    raise RuntimeError("Unknown class %s" % class_name)
+                method = m_exit.group(2)
                 line = dtrace_file.readline()
 
                 new_values = {}
