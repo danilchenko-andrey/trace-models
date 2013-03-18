@@ -15,10 +15,10 @@ class Program:
         dtrace_file = open(dtrace_filename, 'rt')
         line = dtrace_file.readline()
         while line:
-            m = re.search("^ppt (.*).([^:]*):::ENTER", line)
+            m = re.search("^ppt ([^()]*)\.([^:]*):::ENTER", line)
             if m:
                 class_name = m.group(1)
-                if not self.classes[class_name]:
+                if class_name not in self.classes:
                     self.classes[class_name] = ProgramClass(class_name)
                 method_name = m.group(2)
                 variables = {}
@@ -47,13 +47,111 @@ class Program:
                     variables[variable["name"]] = variable
                     variables[variable["name"]]["n"] = chr(len(variables) + 96)
 
-                variables["n"] = chr(len(self.methods) + 64)
-                variables["m"] = "z%s" % len(self.methods)
                 self.classes[class_name].add_method(method_name, variables)
 
             else:
                 line = dtrace_file.readline()
         dtrace_file.close()
+
+    def read_program_executions(self, dtrace_filename):
+        test_scenario_states = []
+        test_scenario_outputs = []
+        dtrace_file = open(dtrace_filename, 'rt')
+        line = dtrace_file.readline()
+
+        stack = []
+        events = {}
+
+        while line:
+            m_enter = re.search("^%s.(.*):::ENTER" % self.class_name, line)
+            if m_enter:
+                method = m_enter.group(1)
+                #print " + %s" % method
+                line = dtrace_file.readline()
+
+                parameters = ""
+                condition = ""
+                while len(line.strip()) > 0:
+                    if line.strip() in self.methods[method]:
+                        key = line.strip()
+                        value = dtrace_file.readline().strip()
+                        if not key.startswith("this."):
+                            if len(parameters) > 0:
+                                parameters += " & "
+                            parameters += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                        else:
+                            if len(condition) > 0:
+                                condition += " & "
+                            condition += "%s_eq_%s" % (self.methods[method][key]["n"], value)
+                    line = dtrace_file.readline()
+                #if parameters:
+                #    parameters = " [" + parameters + "]"
+                if condition:
+                    condition = " [" + condition + "]"
+
+                stack.append(ExecutionPoint(method, parameters, condition))
+                if len(stack) > 1:
+                    stack[len(stack) - 2].add_child(stack[len(stack) - 1])
+
+                continue
+            m_exit = re.search("^%s.(.*):::EXIT.*" % self.class_name, line)
+            if m_exit:
+                method = m_exit.group(1)
+                line = dtrace_file.readline()
+
+                new_values = {}
+                while len(line.strip()) > 0:
+                    if line.strip() in self.methods[method]:
+                        key = line.strip()
+                        value = int(dtrace_file.readline().strip())
+                        #print "set %s=%d" % (key, value)
+                        new_values[key] = value
+                    line = dtrace_file.readline()
+
+                execution_point = stack.pop()
+                execution_point.add_values(new_values)
+
+                if len(stack) == 0:
+                    s = [execution_point]
+
+                    while len(s) > 0:
+                        p = s.pop()
+                        event = p.get_name() + p.get_parameters()
+                        if not event in events:
+                            events[event] = chr(65 + len(events))
+                            if len(events) == 91:
+                                print >> sys.stderr, "OMG!!!!"
+
+                        test_scenario_states.append("%s%s" % (events[event], p.get_condition()))
+                        output = ""
+                        for c in p.get_children():
+                            if len(output) > 0:
+                                output += ", "
+                            output += self.methods[c.get_name()]["m"]
+                            if len(c.get_children()) > 0:
+                                s.append(c)
+                        # for k, v in p.get_values().iteritems():
+                        #     if len(output) > 0:
+                        #         output += ", "
+                        #     # print k, p.get_name(), self.methods[p.get_name()][k]
+                        #     output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
+                        test_scenario_outputs.append(output)
+                        # s.extend(p.get_children())
+                    # test_scenario_states.append(string.join(states, "; "))
+                    #test_scenario_outputs.append(string.join(outputs , "; "))
+                    #print "; ".join(states)
+                    #print "; ".join(outputs)
+                    #print ""
+                    #print "@@ "
+
+                continue
+
+            line = dtrace_file.readline()
+
+        dtrace_file.close()
+
+        print "; ".join(test_scenario_states)
+        print "; ".join(test_scenario_outputs)
 
     def get_class(self, name):
         return self.classes[name]

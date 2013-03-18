@@ -21,6 +21,8 @@ class ProgramClass:
 
     def add_method(self, name, method):
         self.methods[name] = method
+        self.methods[name]["n"] = chr(len(self.methods) + 64)
+        self.methods[name]["m"] = "z%s" % len(self.methods)
 
     def __str__(self):
         result = "%s {" % self.name
