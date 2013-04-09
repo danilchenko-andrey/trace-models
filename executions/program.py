@@ -2,14 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import re
+import sys
 
 from program_class import ProgramClass
+from execution_point import ExecutionPoint
 
 
 class Program:
 
-    def __init__(self):
+    def __init__(self, debug=False):
         self.classes = {}
+        self.debug = debug
+        self.events = {}
+        self.outputs = {}
+        self.fields = {}
 
     def read_program_points(self, dtrace_filename):
         dtrace_file = open(dtrace_filename, 'rt')
@@ -53,14 +59,35 @@ class Program:
                 line = dtrace_file.readline()
         dtrace_file.close()
 
-    def read_program_executions(self, dtrace_filename):
+    def update_fields(self):
+        for k in self.fields:
+            self.fields[k] = set(self.fields[k])
+
+    def get_full_condition(self, condition):
+        if len(condition) == 0:
+            return ""
+        #self.update_fields()
+        result = ""
+        for c in condition.split(" & "):
+            k = c.split("_eq_")[0]
+            v = c.split("_eq_")[1]
+            for cond in self.fields[k]:
+                if len(result) > 0:
+                    result += " & "
+                if cond != v:
+                    result += "!"
+                result += "%s_%s" % (k, cond)
+        return result
+
+    def read_program_executions(self, dtrace_filename, no_print=False):
         test_scenario_states = []
         test_scenario_outputs = []
         dtrace_file = open(dtrace_filename, 'rt')
         line = dtrace_file.readline()
 
         stack = []
-        events = {}
+        # self.events = {}
+        # self.outputs = {}
 
         while line:
             m_enter = re.search("^([^() ]*)\.([^:]*):::ENTER", line)
@@ -70,13 +97,13 @@ class Program:
                     raise RuntimeError("Unknown class %s" % class_name)
                 clazz = self.classes[class_name]
                 method = m_enter.group(2)
+
                 line = dtrace_file.readline()
 
                 parameters = ""
                 condition = ""
-                l = line.strip()
-                while len(l) > 0:
-                    if l in clazz.methods[method]:
+                while len(line.strip()) > 0:
+                    if line.strip() in clazz.methods[method]:
                         key = line.strip()
                         value = dtrace_file.readline().strip()
                         if not key.startswith("this."):
@@ -88,62 +115,79 @@ class Program:
                                 condition += " & "
                             condition += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
                     line = dtrace_file.readline()
-                #if parameters:
-                #    parameters = " [" + parameters + "]"
-                if condition:
-                    condition = " [" + condition + "]"
 
-                stack.append(ExecutionPoint(method, parameters, condition))
+                if self.debug:
+                    prefix = ""
+                    for i in xrange(len(stack)):
+                        prefix += "."
+                    print "%s%s.%s (%s) %s" % (prefix, class_name, method, parameters, condition)
+
+                point = ExecutionPoint(clazz, method, parameters, condition)
+                for k in point.get_parsed_fields():
+                    if k not in self.fields:
+                        self.fields[k] = set()
+                    self.fields[k].add(point.get_parsed_fields()[k])
+                stack.append(point)
                 if len(stack) > 1:
-                    stack[len(stack) - 2].add_child(stack[len(stack) - 1])
+                    stack[len(stack) - 2].add_child(point)
 
                 continue
 
-            m_exit = re.search("^([^() ]*)\.([^:]*):::EXIT.*", line)
+            m_exit = re.search("^([^() ]*)\.([^:]*):::EXIT[0-9]*", line)
             if m_exit:
-                class_name = m_enter.group(1)
+                class_name = m_exit.group(1)
                 if class_name not in self.classes:
                     raise RuntimeError("Unknown class %s" % class_name)
                 method = m_exit.group(2)
                 line = dtrace_file.readline()
 
-                new_values = {}
-                while len(line.strip()) > 0:
-                    if line.strip() in self.methods[method]:
-                        key = line.strip()
-                        value = int(dtrace_file.readline().strip())
-                        #print "set %s=%d" % (key, value)
-                        new_values[key] = value
-                    line = dtrace_file.readline()
+                # new_values = {}
+                # while len(line.strip()) > 0:
+                #     if line.strip() in self.methods[method]:
+                #         key = line.strip()
+                #         value = int(dtrace_file.readline().strip())
+                #         #print "set %s=%d" % (key, value)
+                #         new_values[key] = value
+                #     line = dtrace_file.readline()
 
-                execution_point = stack.pop()
-                execution_point.add_values(new_values)
+                point = stack.pop()
+                # execution_point.add_values(new_values)
 
                 if len(stack) == 0:
-                    s = [execution_point]
+                    s = [point]
 
                     while len(s) > 0:
                         p = s.pop()
+                        if len(p.get_children()) == 0:
+                            continue
                         event = p.get_name() + p.get_parameters()
-                        if not event in events:
-                            events[event] = chr(65 + len(events))
-                            if len(events) == 91:
+                        if not event in self.events:
+                            self.events[event] = chr(65 + len(self.events))
+                            if len(self.events) == 91:
                                 print >> sys.stderr, "OMG!!!!"
-
-                        test_scenario_states.append("%s%s" % (events[event], p.get_condition()))
+                        test_cond = p.get_condition()  # self.get_full_condition(p.get_condition())
+                        if len(test_cond) > 0:
+                            test_cond = " [%s]" % test_cond
+                        test_scenario_states.append("%s%s" % (self.events[event], test_cond))
                         output = ""
                         for c in p.get_children():
-                            if len(output) > 0:
-                                output += ", "
-                            output += self.methods[c.get_name()]["m"]
-                            if len(c.get_children()) > 0:
+                            if len(c.get_children()) == 0:
+                                if len(output) > 0:
+                                    output += ", "
+                                if not c.get_name() in self.outputs:
+                                    self.outputs[c.get_name()] = "z%d" % len(self.outputs)
+                                output += self.outputs[c.get_name()]
+                            else:
                                 s.append(c)
                         # for k, v in p.get_values().iteritems():
                         #     if len(output) > 0:
                         #         output += ", "
                         #     # print k, p.get_name(), self.methods[p.get_name()][k]
                         #     output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
-                        test_scenario_outputs.append(output)
+                        if len(test_scenario_outputs) > 0:
+                            test_scenario_outputs.append(output)
+                        else:
+                            test_scenario_outputs.append("")
                         # s.extend(p.get_children())
                     # test_scenario_states.append(string.join(states, "; "))
                     #test_scenario_outputs.append(string.join(outputs , "; "))
@@ -158,8 +202,40 @@ class Program:
 
         dtrace_file.close()
 
-        print "; ".join(test_scenario_states)
-        print "; ".join(test_scenario_outputs)
+        if not no_print:
+            print "; ".join(test_scenario_states)
+            print "; ".join(test_scenario_outputs)
 
     def get_class(self, name):
         return self.classes[name]
+
+    def read_program_invariants(self, invariants_filename):
+        invariants_file = open(invariants_filename, 'rt')
+        line = invariants_file.readline()
+        while line:
+            m_enter = re.search("^([^() ]*)\.([^:]*):::ENTER", line)
+            if m_enter:
+                class_name = m_enter.group(1)
+                if class_name not in self.classes:
+                    raise RuntimeError("Unknown class %s" % class_name)
+                clazz = self.classes[class_name]
+                method = m_enter.group(2)
+                #print "Invariants for %s.%s..." % (class_name, method)
+                line = invariants_file.readline()
+                while not line.startswith("="):
+                    m_equal_invariant = re.search("^([^() ]*) == ([0-9]*)$", line)
+                    if m_equal_invariant:
+                        variable = m_equal_invariant.group(1)
+                        value = m_equal_invariant.group(2)
+                        #print "%s == %s" % (variable, value)
+                        clazz.get_methods()[method][variable]["possible_values"] = [value]
+                        #print clazz.get_methods()[method][variable]
+                    m_oneof_invariant = re.search("^([^() ]*) one of {(.*)}$", line)
+                    if m_oneof_invariant:
+                        variable = m_oneof_invariant.group(1)
+                        values = m_oneof_invariant.group(2).split(", ")
+                        #print "%s one of %s" % (variable, values)
+                        clazz.get_methods()[method][variable]["possible_values"] = values
+                        #print clazz.get_methods()[method][variable]
+                    line = invariants_file.readline()
+            line = invariants_file.readline()

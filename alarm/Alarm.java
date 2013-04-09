@@ -18,7 +18,7 @@ public class Alarm {
 					case 'm': automata.step(2);break;
 					case 't': automata.step(3);break;
 					case 'a': automata.step(4);break;
-					case 'q': System.exit(0);break;
+					case 'q': return;
 					default:
 						
 				}

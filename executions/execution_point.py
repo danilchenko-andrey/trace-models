@@ -14,19 +14,28 @@ class ExecutionPoint:
         self.method_name = method_name
         self.parameters = parameters
         self.fields = fields
+        self.conditions = {}
+        if len(fields) > 0:
+            for field in fields.split(" & "):
+                key = field.split("_eq_")[0]
+                value = field.split("_eq_")[1]
+                self.conditions[key] = value
         self.nodes = []
 
     def add_child(self, node):
         self.nodes.append(node)
 
     def get_condition(self):
-        return self.condition
+        return self.fields
+
+    def get_parsed_fields(self):
+        return self.conditions
 
     def get_parameters(self):
         return self.parameters
 
     def get_name(self):
-        return self.name
+        return self.method_name
 
     def get_children(self):
         return self.nodes
