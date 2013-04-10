@@ -7,6 +7,8 @@ import sys
 from program_class import ProgramClass
 from execution_point import ExecutionPoint
 
+from execution_graph import *
+
 
 class Program:
 
@@ -16,6 +18,7 @@ class Program:
         self.events = {}
         self.outputs = {}
         self.fields = {}
+        self.graph = ExecutionGraph()
 
     def read_program_points(self, dtrace_filename):
         dtrace_file = open(dtrace_filename, 'rt')
@@ -102,16 +105,21 @@ class Program:
 
                 parameters = ""
                 condition = ""
+
+                parameter_values = {}
+                variable_values = {}
                 while len(line.strip()) > 0:
                     if line.strip() in clazz.methods[method]:
                         key = line.strip()
                         value = dtrace_file.readline().strip()
                         if not key.startswith("this."):
+                            parameter_values[key] = value
                             if "possible_values" in clazz.methods[method][key] and len(clazz.methods[method][key]["possible_values"]) > 1:
                                 if len(parameters) > 0:
                                     parameters += " & "
                                 parameters += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
                         else:
+                            variable_values[key] = value
                             if len(condition) > 0:
                                 condition += " & "
                             condition += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
@@ -126,8 +134,11 @@ class Program:
                     for i in xrange(len(stack)):
                         prefix += "."
                     print "%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition)
+                if no_print:
+                    self.graph.on_method_enter("%s.%s" % (class_name, method), parameter_values, variable_values)
 
                 point = ExecutionPoint(clazz, method, parameters, condition)
+
                 for k in point.get_parsed_fields():
                     if k not in self.fields:
                         self.fields[k] = set()
@@ -144,6 +155,8 @@ class Program:
                 if class_name not in self.classes:
                     raise RuntimeError("Unknown class %s" % class_name)
                 method = m_exit.group(2)
+                if no_print:
+                    self.graph.on_method_exit("%s.%s" % (class_name, method))
                 line = dtrace_file.readline()
 
                 # new_values = {}
@@ -165,20 +178,19 @@ class Program:
                         p = s.pop()
                         if len(p.get_children()) == 0:
                             continue
+
+                        node = self.graph.nodes[p.get_name()]
+                        significant_variables = set()
+
                         event = p.get_name() + p.get_parameters()
                         if not event in self.events:
                             self.events[event] = chr(65 + len(self.events))
                             if len(self.events) == 91:
                                 print >> sys.stderr, "OMG!!!!"
-                        test_cond = p.get_condition()  # self.get_full_condition(p.get_condition())
-                        if len(test_cond) > 0:
-                            test_cond = " [%s]" % test_cond
-                        if self.debug:
-                            print "EVENT: %s%s" % (self.events[event], test_cond)
-                        test_scenario_states.append("%s%s" % (self.events[event], test_cond))
                         output = ""
                         for c in p.get_children():
                             if len(c.get_children()) == 0:
+                                significant_variables.update(node.get_significant_variables(c.get_name()))
                                 if len(output) > 0:
                                     output += ", "
                                 if not c.get_name() in self.outputs:
@@ -195,6 +207,18 @@ class Program:
                             test_scenario_outputs.append(output)
                         else:
                             test_scenario_outputs.append("")
+
+                        test_cond = ""
+                        for significant_variable in significant_variables:
+                            if len(test_cond) > 0:
+                                test_cond += " & "
+                            var_name = p.program_class.methods[p.method_name][significant_variable]["n"]
+                            test_cond += "%s_eq_%s" % (var_name, p.get_parsed_fields()[var_name])
+                        if len(test_cond) > 0:
+                            test_cond = " [%s]" % test_cond
+                        if self.debug:
+                            print "EVENT: %s%s" % (self.events[event], test_cond)
+                        test_scenario_states.append("%s%s" % (self.events[event], test_cond))
                         # s.extend(p.get_children())
                     # test_scenario_states.append(string.join(states, "; "))
                     #test_scenario_outputs.append(string.join(outputs , "; "))

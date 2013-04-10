@@ -35,7 +35,7 @@ class ExecutionPoint:
         return self.parameters
 
     def get_name(self):
-        return self.method_name
+        return "%s.%s" % (self.program_class.get_name(), self.method_name)
 
     def get_children(self):
         return self.nodes
