@@ -107,20 +107,25 @@ class Program:
                         key = line.strip()
                         value = dtrace_file.readline().strip()
                         if not key.startswith("this."):
-                            if len(parameters) > 0:
-                                parameters += " & "
-                            parameters += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
+                            if "possible_values" in clazz.methods[method][key] and len(clazz.methods[method][key]["possible_values"]) > 1:
+                                if len(parameters) > 0:
+                                    parameters += " & "
+                                parameters += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
                         else:
                             if len(condition) > 0:
                                 condition += " & "
                             condition += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
+                            if "possible_values" in clazz.methods[method][key] and len(clazz.methods[method][key]["possible_values"]) > 1:
+                                for pv in clazz.methods[method][key]["possible_values"]:
+                                    if pv != value:
+                                        condition += " & !%s_eq_%s" % (clazz.methods[method][key]["n"], pv)
                     line = dtrace_file.readline()
 
                 if self.debug:
                     prefix = ""
                     for i in xrange(len(stack)):
                         prefix += "."
-                    print "%s%s.%s (%s) %s" % (prefix, class_name, method, parameters, condition)
+                    print "%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition)
 
                 point = ExecutionPoint(clazz, method, parameters, condition)
                 for k in point.get_parsed_fields():
@@ -168,6 +173,8 @@ class Program:
                         test_cond = p.get_condition()  # self.get_full_condition(p.get_condition())
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
+                        if self.debug:
+                            print "EVENT: %s%s" % (self.events[event], test_cond)
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
                         output = ""
                         for c in p.get_children():
@@ -228,14 +235,14 @@ class Program:
                         variable = m_equal_invariant.group(1)
                         value = m_equal_invariant.group(2)
                         #print "%s == %s" % (variable, value)
-                        clazz.get_methods()[method][variable]["possible_values"] = [value]
+                        clazz.methods[method][variable]["possible_values"] = [value]
                         #print clazz.get_methods()[method][variable]
                     m_oneof_invariant = re.search("^([^() ]*) one of {(.*)}$", line)
                     if m_oneof_invariant:
                         variable = m_oneof_invariant.group(1)
-                        values = m_oneof_invariant.group(2).split(", ")
+                        values = m_oneof_invariant.group(2).replace(" ", "").split(",")
                         #print "%s one of %s" % (variable, values)
-                        clazz.get_methods()[method][variable]["possible_values"] = values
+                        clazz.methods[method][variable]["possible_values"] = values
                         #print clazz.get_methods()[method][variable]
                     line = invariants_file.readline()
             line = invariants_file.readline()

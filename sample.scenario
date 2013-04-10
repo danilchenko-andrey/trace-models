@@ -1,0 +1,77 @@
+a[e & !s]; a[!e & s]; a[!e & !s]; size [!e & !s]; r [!e & !s]; a[!e & !s]; r [!e & !s]; r [!e & !s]; r [!e & s]; a[e & !s]; r [e & !s]; size [e & !s]
+s_1; s_inc; s_inc; many; s_dec; s_inc; s_dec; s_dec; s_0; s_1; s_0; zero
+
+a[e & !s]; r [!e & s]; a[e & !s]; r [!e & s]
+s_1; s_0; s_1; s_0
+
+size[e&!s]; a[e & !s]; r [!e & s]; a[e & !s]; r [!e & s]
+zero; s_1; s_0; s_1; s_0
+
+a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]
+s_1; s_inc; s_dec; s_0
+
+size[e&!s]; a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]
+zero; s_1; s_inc; s_dec; s_0
+
+size[e&!s]; r[e & !s]
+zero; error
+
+r[e & !s]
+error
+
+a[e & !s]; a[!e & s]; r[!s & !e]; r[!e & s];r[e & !s]
+s_1; s_inc;s_dec;s_0;error
+
+a[e & !s]; a[!e & s]; a[!e & !s]; r [!e & !s]; a[!e & !s]; r [!e & !s]; a[!e & !s]; r [!e & !s]; r [!e & !s]; a[!e & s]; r [!e & !s]; r[s & !e]
+s_1; s_inc; s_inc; s_dec; s_inc; s_dec; s_inc;s_dec; s_dec; s_inc; s_dec; s_0
+
+a[e & !s]; r [!e & s]; a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]
+s_1; s_0; s_1; s_inc; s_dec; s_0
+
+size[e & !s]; size[e & !s]; a[e & !s]; size[!e & s]; r [!e & s]; a[e & !s]; a[!e & s];size[!e & !s]; r [!e & !s]; r [!e & s]; size[e & !s]
+zero; zero; s_1; one;s_0; s_1; s_inc; many;s_dec; s_0; zero
+
+size[e & !s]; a[e & !s]; size[!e & s]; r [s & !e]; size[e & !s]; a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]; r[e & !s]
+zero; s_1; one; s_0; zero; s_1; s_inc; s_dec; s_0; error
+
+size[e & !s];size[e & !s];size[e & !s];size[e & !s]
+zero; zero;zero; zero
+
+size[e & !s];a[e & !s]; a[!e & s]; a[!e & !s]; size [!e & !s]; r [!e & !s]; a[!e & !s]; r [!e & !s]; r [!e & !s]; r [!e & s]; a[e & !s]; r [e & !s]; size [e & !s]
+zero; s_1; s_inc; s_inc; many; s_dec; s_inc; s_dec; s_dec; s_0; s_1; s_0; zero
+
+size[e & !s];a[e & !s]; r [!e & s]; a[e & !s]; r [!e & s]
+zero; s_1; s_0; s_1; s_0
+
+size[e & !s];size[e&!s]; a[e & !s]; r [!e & s]; a[e & !s]; r [!e & s]
+zero; zero; s_1; s_0; s_1; s_0
+
+size[e & !s];a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]
+zero; s_1; s_inc; s_dec; s_0
+
+size[e & !s];size[e&!s]; a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]
+zero; zero; s_1; s_inc; s_dec; s_0
+
+size[e & !s];size[e&!s]; r[e & !s]
+zero; zero; error
+
+size[e & !s];r[e & !s]
+zero; error
+
+size[e & !s];a[e & !s]; a[!e & s]; r[!s & !e]; r[!e & s];r[e & !s]
+zero; s_1; s_inc;s_dec;s_0;error
+
+size[e & !s];a[e & !s]; a[!e & s]; a[!e & !s]; r [!e & !s]; a[!e & !s]; r [!e & !s]; a[!e & !s]; r [!e & !s]; r [!e & !s]; a[!e & s]; r [!e & !s]; r[s & !e]
+zero; s_1; s_inc; s_inc; s_dec; s_inc; s_dec; s_inc;s_dec; s_dec; s_inc; s_dec; s_0
+
+size[e & !s];a[e & !s]; r [!e & s]; a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]
+zero; s_1; s_0; s_1; s_inc; s_dec; s_0
+
+size[e & !s];size[e & !s]; size[e & !s]; a[e & !s]; size[!e & s]; r [!e & s]; a[e & !s]; a[!e & s];size[!e & !s]; r [!e & !s]; r [!e & s]; size[e & !s]
+zero; zero; zero; s_1; one;s_0; s_1; s_inc; many;s_dec; s_0; zero
+
+size[e & !s];size[e & !s]; a[e & !s]; size[!e & s]; r [s & !e]; size[e & !s]; a[e & !s]; a[!e & s]; r [!e & !s]; r [!e & s]; r[e & !s]
+zero; zero; s_1; one; s_0; zero; s_1; s_inc; s_dec; s_0; error
+
+a[e&!s];size[!e&s];size[!e&s];size[!e&s];size[!e&s];r[!e&s];size[e&!s];a[e&!s];size[!e&s];a[!e&s];size[!e&!s];r[!e&!s];size[!e&s];r[!e&s]
+s_1;one;one;one;one;s_0;zero;s_1;one;s_inc;many;s_dec;one;s_0
