@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -rf traces
 mkdir traces
-for i in {0..20}
+for i in {4..20}
 do
 	echo -n "Doing $i execution..."
 	python alarm/train_set_generator.py $1 > alarm-test

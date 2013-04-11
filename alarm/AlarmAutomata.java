@@ -22,7 +22,7 @@ public class AlarmAutomata {
 					case 1: z1();break; // H
 					case 2: z2(); break; // M
 					case 3: z5(); break; // T
-					case 4: state = 2; break; // A
+					case 4: z8(); break; // A
 				}
 				break;
 			case 2: // setting alarm
@@ -30,7 +30,7 @@ public class AlarmAutomata {
 					case 1: z3();break; // H
 					case 2: z4(); break; // M
 					case 3: z5(); break; // T
-					case 4: state = 3; break; // A
+					case 4: z8(); break; // A
 				}
 				break;
 			case 3: // alarm is off
@@ -46,7 +46,7 @@ public class AlarmAutomata {
 							z5();
 						}
 						break; 
-					case 4: z7(); state = 2; break; // A
+					case 4: z7(); z8(); break; // A
 				}
 				break;
 			default:
@@ -84,5 +84,9 @@ public class AlarmAutomata {
 	}
 	public void z7() {
 		System.out.println("Alarm off");
+	}
+
+	public void z8() {
+		state = ((state + 1) % 3) + 1;
 	}
 }
