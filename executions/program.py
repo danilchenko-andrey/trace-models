@@ -194,10 +194,15 @@ class Program:
 
                         test_cond = ""
                         for significant_variable in significant_variables:
-                            if len(test_cond) > 0:
-                                test_cond += " & "
                             var_name = p.program_class.methods[p.method_name][significant_variable]["n"]
-                            test_cond += "%s_eq_%s" % (var_name, p.get_parsed_fields()[var_name])
+                            var_value = p.get_parsed_fields()[var_name]
+                            for possible_value in self.graph.nodes[p.get_name()].method.variables[significant_variable]:
+                                if len(test_cond) > 0:
+                                    test_cond += " & "
+                                if possible_value == var_value:
+                                    test_cond += "%s_eq_%s" % (var_name, var_value)
+                                else:
+                                    test_cond += "!%s_eq_%s" % (var_name, possible_value)
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
