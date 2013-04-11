@@ -216,8 +216,8 @@ class Program:
         dtrace_file.close()
 
         if not no_print:
-            logging.info("; ".join(test_scenario_states))
-            logging.info("; ".join(test_scenario_outputs))
+            print "; ".join(test_scenario_states)
+            print "; ".join(test_scenario_outputs)
 
             for node in self.graph.nodes.values():
                 node.print_edges()
