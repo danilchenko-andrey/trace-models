@@ -159,17 +159,7 @@ class Program:
                     self.graph.on_method_exit("%s.%s" % (class_name, method))
                 line = dtrace_file.readline()
 
-                # new_values = {}
-                # while len(line.strip()) > 0:
-                #     if line.strip() in self.methods[method]:
-                #         key = line.strip()
-                #         value = int(dtrace_file.readline().strip())
-                #         #print "set %s=%d" % (key, value)
-                #         new_values[key] = value
-                #     line = dtrace_file.readline()
-
                 point = stack.pop()
-                # execution_point.add_values(new_values)
 
                 if len(stack) == 0:
                     s = [point]
@@ -198,11 +188,6 @@ class Program:
                                 output += self.outputs[c.get_name()]
                             else:
                                 s.append(c)
-                        # for k, v in p.get_values().iteritems():
-                        #     if len(output) > 0:
-                        #         output += ", "
-                        #     # print k, p.get_name(), self.methods[p.get_name()][k]
-                        #     output += "%s_eq_%s" % (self.methods[p.get_name()][k]["n"], v)
                         if len(test_scenario_outputs) > 0:
                             test_scenario_outputs.append(output)
                         else:
@@ -217,15 +202,8 @@ class Program:
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
-                            print "EVENT: %s%s" % (self.events[event], test_cond)
+                            print "EVENT: %s%s" % (event, test_cond)
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
-                        # s.extend(p.get_children())
-                    # test_scenario_states.append(string.join(states, "; "))
-                    #test_scenario_outputs.append(string.join(outputs , "; "))
-                    #print "; ".join(states)
-                    #print "; ".join(outputs)
-                    #print ""
-                    #print "@@ "
 
                 continue
 
