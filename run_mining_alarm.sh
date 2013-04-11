@@ -20,8 +20,8 @@ echo -n "Building automaton..."
 java -jar /mnt/vbshare/builder.jar scenarios -r Alarm.gv -t Alarm.tree.gv -s 100
 echo "done"
 echo -n "Decoding..."
-cat Alarm.tree.gv | python /mnt/vbshare/decode_gv.py Alarm.decode STATE_ | python /mnt/vbshare/decode_gv.py Alarm.decode var_ > Alarm.tree.decoded.gv
-cat Alarm.gv | python /mnt/vbshare/decode_gv.py Alarm.decode STATE_ | python /mnt/vbshare/decode_gv.py Alarm.decode var_ > Alarm.decoded.gv
+cat Alarm.tree.gv | python /mnt/vbshare/decode_gv.py Alarm.decode > Alarm.tree.decoded.gv
+cat Alarm.gv | python /mnt/vbshare/decode_gv.py Alarm.decode > Alarm.decoded.gv
 echo "done"
 echo -n "Painting..."
 dot -T png Alarm.tree.gv > alarm-tree.png
