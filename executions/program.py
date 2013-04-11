@@ -207,6 +207,7 @@ class Program:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
                             logging.debug("EVENT: %s%s" % (event, test_cond))
+                            logging.debug("EVENT DECODE: %s = %s" % (event, self.events[event]))
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
 
                 continue
@@ -216,6 +217,10 @@ class Program:
         dtrace_file.close()
 
         if not no_print:
+            #output_file = open("scenarios", "a")
+            #output_file.write("%s\n" % "; ".join(test_scenario_states))
+            #output_file.write("%s\n" % "; ".join(test_scenario_outputs))
+            #output_file.close()
             print "; ".join(test_scenario_states)
             print "; ".join(test_scenario_outputs)
 

@@ -13,10 +13,10 @@ done
 java daikon.Daikon traces/Alarm.dtrace.*
 #java daikon.PrintInvariants Alarm.inv.gz > Alarm.dtrace.invariants
 echo -n "Mining 10 executions..."
-python /mnt/vbshare/process_dtrace.py 10 traces/Alarm.dtrace > Alarm.scenario
+python /mnt/vbshare/process_dtrace.py 10 traces/Alarm.dtrace > scenarios
 echo "done"
 echo -n "Building automaton..."
-java -jar /mnt/vbshare/builder.jar Alarm.scenario -r Alarm.gv -s 100
+java -jar /mnt/vbshare/builder.jar scenarios -r Alarm.gv -s 100
 echo "done"
 dot -T png Alarm.tree.gv > alarm-tree.png
 dot -T png Alarm.gv > alarm.png
