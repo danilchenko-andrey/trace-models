@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 from method import MethodMetaInfo, MethodCall
 
 
@@ -11,6 +13,7 @@ class ExecutionNode:
         self.edges = {}
         self.merged_edges = {}
         self.terminal = True
+        logging.debug("GRAPH: created node %s" % name)
 
     def name(self):
         return self.method.name
@@ -67,6 +70,11 @@ class ExecutionNode:
             if self.is_variable_significant(dst, v):
                 result.add(v)
         return result
+
+    def print_edges(self):
+        for dst in self.edges:
+            logging.debug("GRAPH: edge %s => %s" % (self.name(), dst))
+            logging.debug("GRAPH: important (%s) [%s]" % (", ".join(self.get_significant_params(dst)), ", ".join(self.get_significant_variables(dst))))
 
 
 class ExecutionGraph:

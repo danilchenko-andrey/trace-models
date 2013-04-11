@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -rf traces
 mkdir traces
-for i in {0..30}
+for i in {0..10}
 do
 	echo -n "Doing $i execution..."
 	python alarm/train_set_generator.py $1 > alarm-test
@@ -12,8 +12,8 @@ do
 done
 java daikon.Daikon traces/Alarm.dtrace.*
 #java daikon.PrintInvariants Alarm.inv.gz > Alarm.dtrace.invariants
-echo -n "Mining 30 executions..."
-python /mnt/vbshare/process_dtrace.py 30 traces/Alarm.dtrace > Alarm.scenario
+echo -n "Mining 10 executions..."
+python /mnt/vbshare/process_dtrace.py 10 traces/Alarm.dtrace > Alarm.scenario
 echo "done"
 echo -n "Building automaton..."
 java -jar /mnt/vbshare/builder.jar Alarm.scenario -r Alarm.gv -s 100

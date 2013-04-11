@@ -14,13 +14,15 @@ from execution_graph import *
 class Program:
 
     def __init__(self, debug=False):
-        self.log = logging.getLogger("default")
         self.classes = {}
         self.debug = debug
         self.events = {}
         self.outputs = {}
         self.fields = {}
         self.graph = ExecutionGraph()
+
+    def hello(self):
+        logging.debug("Hello from Program class")
 
     def read_program_points(self, dtrace_filename):
         dtrace_file = open(dtrace_filename, 'rt')
@@ -135,7 +137,7 @@ class Program:
                     prefix = ""
                     for i in xrange(len(stack)):
                         prefix += "."
-                    self.log.debug("%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition))
+                    logging.debug("%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition))
                 if no_print:
                     self.graph.on_method_enter("%s.%s" % (class_name, method), parameter_values, variable_values)
 
@@ -204,7 +206,7 @@ class Program:
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
-                            self.log.debug("EVENT: %s%s" % (event, test_cond))
+                            logging.debug("EVENT: %s%s" % (event, test_cond))
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
 
                 continue
@@ -214,8 +216,11 @@ class Program:
         dtrace_file.close()
 
         if not no_print:
-            print "; ".join(test_scenario_states)
-            print "; ".join(test_scenario_outputs)
+            logging.info("; ".join(test_scenario_states))
+            logging.info("; ".join(test_scenario_outputs))
+
+            for node in self.graph.nodes.values():
+                node.print_edges()
 
     def get_class(self, name):
         return self.classes[name]

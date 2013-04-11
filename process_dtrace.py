@@ -4,32 +4,31 @@
 import sys
 import logging
 
-from executions import *
+from executions import Program
 
 
-if __name__ == '__main__':
+def main():
     program_name = sys.argv[2]
-    logger = logging.getLogger("default")
-    logger.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s", filename="process-dtrace.log", filemode='w')
+    logging.debug("Starting work with %s" % program_name)
 
-    fh = logging.FileHandler("%s.log" % program_name)
-    fh.setLevel(logging.DEBUG)
-    file_formatter = logging.Formatter("%(filename)s:%(lineno)d %(asctime)s [%(levelname)s] %(message)s")
-    fh.setFormatter(file_formatter)
-    logger.addHandler(fh)
-
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
-    console_formatter = logging.Formatter("%(asctime)s %(message)s")
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(message)s")
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
 
     program = Program()
+    program.debug = True
     program.read_program_points("%s.0" % program_name)
     #program.read_program_invariants("%s.invariants" % program_name)
-    program.debug = True
     for i in xrange(int(sys.argv[1])):
         program.read_program_executions("%s.%d" % (program_name, i), True)
 
     for i in xrange(int(sys.argv[1])):
         program.read_program_executions("%s.%d" % (program_name, i))
+
+    logging.debug("Finished work with %s" % program_name)
+
+if __name__ == '__main__':
+    main()
