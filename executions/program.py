@@ -3,6 +3,7 @@
 
 import re
 import sys
+import logging
 
 from program_class import ProgramClass
 from execution_point import ExecutionPoint
@@ -13,6 +14,7 @@ from execution_graph import *
 class Program:
 
     def __init__(self, debug=False):
+        self.log = logging.getLogger("default")
         self.classes = {}
         self.debug = debug
         self.events = {}
@@ -133,7 +135,7 @@ class Program:
                     prefix = ""
                     for i in xrange(len(stack)):
                         prefix += "."
-                    print "%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition)
+                    self.log.debug("%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition))
                 if no_print:
                     self.graph.on_method_enter("%s.%s" % (class_name, method), parameter_values, variable_values)
 
@@ -202,7 +204,7 @@ class Program:
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
-                            print "EVENT: %s%s" % (event, test_cond)
+                            self.log.debug("EVENT: %s%s" % (event, test_cond))
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
 
                 continue
