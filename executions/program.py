@@ -118,26 +118,21 @@ class Program:
                         value = dtrace_file.readline().strip()
                         if not key.startswith("this."):
                             parameter_values[key] = value
-                            if "possible_values" in clazz.methods[method][key] and len(clazz.methods[method][key]["possible_values"]) > 1:
-                                if len(parameters) > 0:
-                                    parameters += " & "
-                                parameters += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
+                            if len(parameters) > 0:
+                                parameters += " & "
+                            parameters += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
                         else:
                             variable_values[key] = value
                             if len(condition) > 0:
                                 condition += " & "
                             condition += "%s_eq_%s" % (clazz.methods[method][key]["n"], value)
-                            if "possible_values" in clazz.methods[method][key] and len(clazz.methods[method][key]["possible_values"]) > 1:
-                                for pv in clazz.methods[method][key]["possible_values"]:
-                                    if pv != value:
-                                        condition += " & !%s_eq_%s" % (clazz.methods[method][key]["n"], pv)
                     line = dtrace_file.readline()
 
                 if self.debug:
                     prefix = ""
                     for i in xrange(len(stack)):
                         prefix += "."
-                    logging.debug("%s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition))
+                    logging.debug("method called %s%s.%s (%s) [%s]" % (prefix, class_name, method, parameters, condition))
                 if no_print:
                     self.graph.on_method_enter("%s.%s" % (class_name, method), parameter_values, variable_values)
 
