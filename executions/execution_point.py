@@ -9,10 +9,11 @@ class ExecutionPoint:
     its parameters and initial field values
     and also its children – execution points for nested methods.
     '''
-    def __init__(self, program_class, method_name, parameters, fields):
+    def __init__(self, program_class, method_name, parameters, full_parameters, fields):
         self.program_class = program_class
         self.method_name = method_name
         self.parameters = parameters
+        self.full_parameters = full_parameters
         self.fields = fields
         self.conditions = {}
         if len(fields) > 0:
@@ -33,6 +34,14 @@ class ExecutionPoint:
 
     def get_parameters(self):
         return self.parameters
+
+    def get_full_parameters(self):
+        result = ""
+        for p in self.full_parameters:
+            if len(result) > 0:
+                result += ", "
+            result += "%s=%s" % (p, self.full_parameters[p])
+        return result
 
     def get_name(self):
         return "%s.%s" % (self.program_class.get_name(), self.method_name)

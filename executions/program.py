@@ -136,7 +136,7 @@ class Program:
                 if no_print:
                     self.graph.on_method_enter("%s.%s" % (class_name, method), parameter_values, variable_values)
 
-                point = ExecutionPoint(clazz, method, parameters, condition)
+                point = ExecutionPoint(clazz, method, parameters, parameter_values, condition)
 
                 for k in point.get_parsed_fields():
                     if k not in self.fields:
@@ -203,12 +203,12 @@ class Program:
                                     test_cond += "var_%s_eq_%s" % (var_name, var_value)
                                 else:
                                     test_cond += "!var_%s_eq_%s" % (var_name, possible_value)
-                                logging.debug("EVENT DECODE: %s = var_%s_eq_" % (significant_variable, var_name))
+                                logging.debug("EVENT DECODE: %s= = var_%s_eq_" % (significant_variable, var_name))
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
                             logging.debug("EVENT: %s%s" % (event, test_cond))
-                            logging.debug("EVENT DECODE: %s = %s" % (event, self.events[event]))
+                            logging.debug("EVENT DECODE: %s(%s) = %s" % (p.get_name(), p.get_full_parameters(), self.events[event]))
 
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
 

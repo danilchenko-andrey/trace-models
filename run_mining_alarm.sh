@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -rf traces
 mkdir traces
-for i in {0..50}
+for i in {0..20}
 do
 	echo -n "Doing $i execution..."
 	python alarm/train_set_generator.py $1 > alarm-test
@@ -12,8 +12,8 @@ do
 done
 #java daikon.Daikon traces/Alarm.dtrace.*
 #java daikon.PrintInvariants Alarm.inv.gz > Alarm.dtrace.invariants
-echo -n "Mining 50 executions..."
-python /mnt/vbshare/process_dtrace.py 50 traces/Alarm.dtrace > scenarios
+echo -n "Mining executions..."
+python /mnt/vbshare/process_dtrace.py 20 traces/Alarm.dtrace > scenarios
 cat process-dtrace.log | grep "DECODE" | sed -e 's/.*DECODE. \(.*\) = \(.*\)$/\2 = \1/' | sort | uniq > Alarm.decode
 echo "done"
 echo -n "Building automaton..."
