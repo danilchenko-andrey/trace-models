@@ -39,7 +39,7 @@ class ExecutionNode:
         for dst_edge in self.edges[dst]:
             params = dst_edge.params.copy()
             del params[name]
-            for other_dst in (set(self.edges.keys()) - set(dst)):
+            for other_dst in set(self.edges.keys()) - set([dst]):
                 for other_edge in self.edges[other_dst]:
                     if other_edge.matches(params, dst_edge.variables):
                         return True
@@ -58,7 +58,7 @@ class ExecutionNode:
         for dst_edge in self.edges[dst]:
             variables = dst_edge.variables.copy()
             del variables[name]
-            for other_dst in (set(self.edges.keys()) - set(dst)):
+            for other_dst in set(self.edges.keys()) - set([dst]):
                 for other_edge in self.edges[other_dst]:
                     if other_edge.matches(dst_edge.params, variables):
                         return True
@@ -74,7 +74,12 @@ class ExecutionNode:
     def print_edges(self):
         for dst in self.edges:
             logging.debug("GRAPH: edge %s => %s" % (self.name(), dst))
-            logging.debug("GRAPH: important (%s) [%s]" % (", ".join(self.get_significant_params(dst)), ", ".join(self.get_significant_variables(dst))))
+            variables = ""
+            for v in self.get_significant_variables(dst):
+                if len(variables) > 0:
+                    variables += ", "
+                variables += v + " of %s" % sorted(list(self.method.variables[v]))
+            logging.debug("GRAPH: important (%s) [%s]" % (", ".join(self.get_significant_params(dst)), variables))
 
 
 class ExecutionGraph:
