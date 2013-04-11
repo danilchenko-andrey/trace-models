@@ -173,7 +173,7 @@ class Program:
 
                         event = p.get_name() + p.get_parameters()
                         if not event in self.events:
-                            self.events[event] = chr(65 + len(self.events))
+                            self.events[event] = "STATE_%s" % chr(65 + len(self.events))
                             if len(self.events) == 91:
                                 print >> sys.stderr, "OMG!!!!"
                         output = ""
