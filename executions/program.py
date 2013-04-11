@@ -200,14 +200,16 @@ class Program:
                                 if len(test_cond) > 0:
                                     test_cond += " & "
                                 if possible_value == var_value:
-                                    test_cond += "%s_eq_%s" % (var_name, var_value)
+                                    test_cond += "%var_s_eq_%s" % (var_name, var_value)
                                 else:
-                                    test_cond += "!%s_eq_%s" % (var_name, possible_value)
+                                    test_cond += "!%var_s_eq_%s" % (var_name, possible_value)
+                                logging.debug("EVENT DECODE: var_%s_eq_ = %s" % (var_name, significant_variable))
                         if len(test_cond) > 0:
                             test_cond = " [%s]" % test_cond
                         if self.debug:
                             logging.debug("EVENT: %s%s" % (event, test_cond))
                             logging.debug("EVENT DECODE: %s = %s" % (event, self.events[event]))
+
                         test_scenario_states.append("%s%s" % (self.events[event], test_cond))
 
                 continue

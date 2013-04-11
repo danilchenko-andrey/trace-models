@@ -7,8 +7,9 @@ import sys
 
 def main():
     key_file = open(sys.argv[1], 'r')
+    decode_type = sys.argv[2]
     events = {}
-    pattern = re.compile("^(STATE_[A-Z]*) = (.*)$")
+    pattern = re.compile("^(%s[A-Z]*) = (.*)$" % decode_type)
     for line in key_file:
         key_line = re.search(pattern, line.strip())
         if key_line:
@@ -16,7 +17,7 @@ def main():
     key_file.close()
 
     for line in sys.stdin:
-        print re.sub("(STATE_[A-Z]*)", lambda m: events[m.group(1)], line),
+        print re.sub("(%s[A-Z]*)" % decode_type, lambda m: events[m.group(1)], line),
 
 
 if __name__ == "__main__":
