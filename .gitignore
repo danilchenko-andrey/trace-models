@@ -1,1 +1,8 @@
 *.pyc
+slides/*.log
+slides/*.out
+slides/*.aux
+slides/*.nav
+slides/*.snm
+slides/*.pdf
+slides/*.toc
