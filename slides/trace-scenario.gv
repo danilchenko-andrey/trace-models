@@ -1,0 +1,24 @@
+digraph Scenario {
+    node [shape = ellipse];
+    0 [label = "main"];
+    1 [label = "step", color="red"];
+    2 [label = "z1", color="red"];
+    3 [label = "step", color="blue"];
+    4 [label = "z2", color="blue"];
+    5 [label = "z3", color="blue"];
+    6 [label = "step", color="green"];
+    7 [label = "step", color="orange"];
+    8 [label = "z4", color="orange"];
+    9 [label = "z2", color="orange"];
+    10 [label = "z5", color="orange"];
+    0 -> 1;
+    0 -> 3;
+    0 -> 6;
+    1 -> 2 [color="red"];
+    3 -> 4 [color="blue"];
+    3 -> 5 [color="blue"];
+    0 -> 7;
+    7 -> 8 [color="orange"];
+    7 -> 9 [color="orange"];
+    7 -> 10 [color="orange"];
+}

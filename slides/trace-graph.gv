@@ -1,0 +1,17 @@
+digraph Trace {
+    node [shape = ellipse];
+    0 [label = "main"];
+    1 [label = "step"];
+    2 [label = "z1"];
+    3 [label = "z2"];
+    4 [label = "z3"];
+    5 [label = "z4"];
+    6 [label = "z5"];
+    0 -> 1;
+    1 -> 2;
+    1 -> 3;
+    1 -> 4;
+    1 -> 5;
+    1 -> 3;
+    1 -> 6;
+}
