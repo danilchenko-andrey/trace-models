@@ -1,0 +1,59 @@
+T; T; T; T
+z5; z5; z5; z5
+
+H; H; H; H
+z1; z1; z1; z1
+
+M; M; M; M
+z2; z2; z2; z2
+
+T;  M;  H;  T;  T;  T;  M;  T;  H;  H;  T;  M
+z5; z2; z1; z5; z5; z5; z2; z5; z1; z1; z5; z2
+
+A; T;  M;  H;  T;  T;  T;  M;  T;  H;  H;  T;  M
+ ; z5; z4; z3; z5; z5; z5; z4; z5; z3; z3; z5; z4
+
+A;  T;  T;  T;  T
+ ;  z5; z5; z5; z5
+
+A; H;  H;  H;  H
+ ; z3; z3; z3; z3
+
+A; M;  M;  M;  M
+ ; z4; z4; z4; z4
+
+A; T;  T;  M;  H;  T;  T
+ ; z5; z5; z4; z3; z5; z5
+
+A; A; H;  H;  H;  H
+ ;  ; z1; z1; z1; z1
+
+A; A; M;  M;  M;  M
+ ;  ; z2; z2; z2; z2
+
+A; A; A;  T;  T;  T;  T
+ ;  ; z7; z5; z5; z5; z5
+
+A; A; A;  H;  H;  H;  H
+ ;  ; z7; z1; z1; z1; z1
+
+A; A; A;  M;  M;  M;  M
+ ;  ; z7; z2; z2; z2; z2
+
+A; A; A;  A; T
+ ;  ; z7;  ; z5
+
+A;  A;  A;  A; T;  T;  T;  T
+ ;   ;  z7;  ; z5; z5; z5; z5
+
+A; A; A;  A; H
+ ;  ; z7;  ; z3
+
+A; A; A;  A; H;  H;  H;  H
+ ;  ; z7;  ; z3; z3; z3; z3
+
+A; A; A;  A; M
+ ;  ; z7;  ; z4
+
+A; A; A;  A; M;  M;  M;  M
+ ;  ; z7;  ; z4; z4; z4; z4

@@ -20,12 +20,14 @@ def main():
 
     program = Program()
     program.debug = True
-    program.read_program_points("%s.0" % program_name)
+    for i in range(int(sys.argv[1])+1):
+        program.read_program_points("%s.%d" % (program_name, i))
+
     #program.read_program_invariants("%s.invariants" % program_name)
-    for i in xrange(int(sys.argv[1])):
+    for i in range(int(sys.argv[1])+1):
         program.read_program_executions("%s.%d" % (program_name, i), True)
 
-    for i in xrange(int(sys.argv[1])):
+    for i in range(int(sys.argv[1])+1):
         program.read_program_executions("%s.%d" % (program_name, i))
 
     logging.debug("Finished work with %s" % program_name)

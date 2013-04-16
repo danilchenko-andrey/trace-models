@@ -5,9 +5,11 @@ mkdir traces
 for i in {0..20}
 do
 	echo -n "Doing $i execution..."
-	python alarm/train_set_generator.py $1 > alarm-test
+	cat alarm-test.scenarios | head -$i | tail -1 > traces/alarm-test.$i
+	cp traces/alarm-test.$i alarm-test
+	#python alarm/train_set_generator.py $1 > alarm-test
 	cat alarm-test >> Alarm.test
-	java -cp .:$CLASSPATH daikon.Chicory --daikon alarm.Alarm 2>&1 >/dev/null
+	java -cp .:$CLASSPATH daikon.Chicory --daikon alarm.Alarm >/dev/null 2>&1
 	zcat Alarm.dtrace.gz > traces/Alarm.dtrace.$i
 	rm Alarm.dtrace.gz
 	echo "done"

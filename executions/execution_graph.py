@@ -93,6 +93,7 @@ class ExecutionGraph:
         self.current_variables = {}
 
     def on_method_enter(self, name, params, variables):
+        logging.debug("Entering %s(%s) [%s]" % (name, params, variables))
         if name not in self.nodes:
             self.nodes[name] = ExecutionNode(name)
         if not self.root:
@@ -105,6 +106,7 @@ class ExecutionGraph:
         self.current_variables = variables
 
     def on_method_exit(self, name):
+        logging.debug("Exiting %s" % name)
         if len(self.node_stack) > 0:
             top = self.node_stack.pop()
             self.current_node = top["node"]

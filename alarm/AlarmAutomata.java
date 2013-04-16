@@ -8,7 +8,7 @@ public class AlarmAutomata {
 	private int am;
 
 	public AlarmAutomata() {
-		state=1;
+		state=0;
 		h = 0;
 		m = 0;
 		ah = 0;
@@ -16,8 +16,9 @@ public class AlarmAutomata {
 	}
 
 	public void step(int event) {
+		System.out.println("State: " + state + " Event: " + event);
 		switch (state) {
-			case 1: // alarm is off
+			case 0: // alarm is off
 				switch(event) {
 					case 1: z1();break; // H
 					case 2: z2(); break; // M
@@ -25,7 +26,7 @@ public class AlarmAutomata {
 					case 4: z8(); break; // A
 				}
 				break;
-			case 2: // setting alarm
+			case 1: // setting alarm
 				switch(event) {
 					case 1: z3();break; // H
 					case 2: z4(); break; // M
@@ -33,7 +34,7 @@ public class AlarmAutomata {
 					case 4: z8(); break; // A
 				}
 				break;
-			case 3: // alarm is off
+			case 2: // alarm is off
 				switch(event) {
 					case 1: z1();break; // H
 					case 2: z2(); break; // M
@@ -50,6 +51,7 @@ public class AlarmAutomata {
 				}
 				break;
 			default:
+				break;
 		}
 	}
 
@@ -87,6 +89,6 @@ public class AlarmAutomata {
 	}
 
 	public void z8() {
-		state = ((state + 1) % 3) + 1;
+		state = (state + 1) % 3;
 	}
 }

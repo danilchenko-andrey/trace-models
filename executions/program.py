@@ -161,6 +161,7 @@ class Program:
                 point = stack.pop()
 
                 if len(stack) == 0:
+                    logging.debug("Starting loopback on %s" % point.get_name())
                     s = [point]
 
                     while len(s) > 0:
@@ -177,6 +178,7 @@ class Program:
                             if len(self.events) == 91:
                                 print >> sys.stderr, "OMG!!!!"
                         output = ""
+                        to_append = []
                         for c in p.get_children():
                             if len(c.get_children()) == 0:
                                 significant_variables.update(node.get_significant_variables(c.get_name()))
@@ -184,9 +186,13 @@ class Program:
                                     output += ", "
                                 if not c.get_name() in self.outputs:
                                     self.outputs[c.get_name()] = "z%d" % len(self.outputs)
+                                    logging.debug("EVENT DECODE: %s = %s" % (c.get_name(), self.outputs[c.get_name()]))
                                 output += self.outputs[c.get_name()]
                             else:
-                                s.append(c)
+                                to_append.append(c)
+                        if len(to_append) > 0:
+                            to_append.reverse()
+                            s.extend(to_append)
                         if len(test_scenario_outputs) > 0:
                             test_scenario_outputs.append(output)
                         else:
@@ -210,8 +216,7 @@ class Program:
                             logging.debug("EVENT: %s%s" % (event, test_cond))
                             logging.debug("EVENT DECODE: %s(%s) = %s" % (p.get_name(), p.get_full_parameters(), self.events[event]))
 
-                        test_scenario_states.append("%s%s" % (self.events[event], test_cond))
-
+                        test_scenario_states.append("%s%s" % (self.events[event], ""))
                 continue
 
             line = dtrace_file.readline()
