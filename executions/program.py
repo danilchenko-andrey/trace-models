@@ -216,7 +216,7 @@ class Program:
                             logging.debug("EVENT: %s%s" % (event, test_cond))
                             logging.debug("EVENT DECODE: %s(%s) = %s" % (p.get_name(), p.get_full_parameters(), self.events[event]))
 
-                        test_scenario_states.append("%s%s" % (self.events[event], ""))
+                        test_scenario_states.append("%s%s" % (self.events[event], test_cond))
                 continue
 
             line = dtrace_file.readline()
